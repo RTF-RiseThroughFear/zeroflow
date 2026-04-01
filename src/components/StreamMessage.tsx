@@ -5,6 +5,11 @@
  * layout jank. Just pass a stream and it handles everything.
  * Supports optional markdown rendering via the incremental parser.
  *
+ * Now with shrink-wrap support:
+ *   - When shrinkWrap=true, the container width tightens to fit the widest
+ *     line after streaming completes, using Chenglou's binary search +
+ *     walkLineRanges pattern. Zero wasted horizontal space.
+ *
  * When markdown is enabled, the component uses auto height since
  * markdown elements (headings, code blocks, lists) have variable
  * sizing that pretext plain-text measurement cannot predict.
@@ -25,10 +30,18 @@ import type { StreamMessageProps, LayoutResult } from '../types';
  *
  * @example
  * ```tsx
+ * // Basic usage
  * <StreamMessage
  *   stream={aiResponse}
  *   className="chat-bubble"
  *   font="16px Inter"
+ * />
+ *
+ * // With shrink-wrap (tightest bubble sizing)
+ * <StreamMessage
+ *   stream={aiResponse}
+ *   font="16px Inter"
+ *   shrinkWrap
  * />
  * ```
  */
@@ -39,6 +52,7 @@ export function StreamMessage(props: StreamMessageProps) {
     font,
     width,
     markdown = true,
+    shrinkWrap = false,
     onComplete,
     onLayout,
     children,
@@ -47,14 +61,12 @@ export function StreamMessage(props: StreamMessageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState<number | undefined>(width);
 
-  // Auto-detect container width if not provided
+  // Auto-detect container width if not provided (ONE DOM read on mount)
   useEffect(() => {
     if (width !== undefined || !containerRef.current) return;
 
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        // Only read width once on mount, not on every resize
-        // This is the ONE DOM read we allow
         setContainerWidth(entry.contentRect.width);
         observer.disconnect();
       }
@@ -68,6 +80,7 @@ export function StreamMessage(props: StreamMessageProps) {
     stream,
     font,
     width: containerWidth,
+    shrinkWrap,
     onComplete,
   });
 
@@ -81,8 +94,6 @@ export function StreamMessage(props: StreamMessageProps) {
     if (!markdown || !layout.text || layout.text === prevTextRef.current) return;
     prevTextRef.current = layout.text;
 
-    // Re-create parser state and feed full text
-    // (parser re-parses full text each time - simple and correct)
     parserStateRef.current = createParserState();
     const ast = feedText(parserStateRef.current, layout.text);
     setMarkdownAst(ast);
@@ -93,21 +104,30 @@ export function StreamMessage(props: StreamMessageProps) {
     onLayout?.(layout);
   }, [layout, onLayout]);
 
-  // Pre-calculated height for plain text (true zero reflow).
-  // For markdown mode, we use auto height because markdown elements
-  // (headings, code blocks, lists) have variable sizing that pretext
-  // plain-text measurement cannot predict accurately.
+  // Container sizing:
+  // - Plain text: pretext pre-calculated height (true zero reflow)
+  // - Markdown: auto height (markdown elements have variable sizing)
+  // - Shrink-wrap: tightWidth from pretext walkLineRanges after stream completes
   const usePreCalculatedHeight = !markdown && layout.height > 0;
-  const containerStyle: CSSProperties = usePreCalculatedHeight
-    ? {
-        height: layout.height,
-        overflow: 'hidden',
-        transition: layout.isStreaming ? 'height 50ms ease-out' : 'none',
-        willChange: layout.isStreaming ? 'height' : 'auto',
-      }
-    : {
-        minHeight: layout.height || undefined,
-      };
+  const containerStyle: CSSProperties = {
+    ...(usePreCalculatedHeight
+      ? {
+          height: layout.height,
+          overflow: 'hidden',
+          transition: layout.isStreaming ? 'height 50ms ease-out' : 'none',
+          willChange: layout.isStreaming ? 'height' : 'auto',
+        }
+      : {
+          minHeight: layout.height || undefined,
+        }),
+    // Shrink-wrap: tighten width after streaming completes
+    ...(shrinkWrap && layout.tightWidth && !layout.isStreaming
+      ? {
+          width: layout.tightWidth,
+          transition: 'width 200ms ease-out',
+        }
+      : {}),
+  };
 
   // Custom renderer
   if (children) {
@@ -148,9 +168,9 @@ export function StreamMessage(props: StreamMessageProps) {
   );
 }
 
-// ──────────────────────────────────────────────────
-// AST → React Elements
-// ──────────────────────────────────────────────────
+// --------------------------------------------------
+// AST to React Elements
+// --------------------------------------------------
 
 let nodeKeyCounter = 0;
 

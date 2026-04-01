@@ -26,7 +26,13 @@ export type {
   StreamSource,
   LayoutResult,
   MeasureResult,
+  ShrinkWrapResult,
   StreamMessageProps,
+  PretextLayoutLine,
+  LayoutCursor,
+  LayoutLineRange,
+  PreparedText,
+  PreparedTextWithSegments,
 } from './types';
 
 export type {

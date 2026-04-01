@@ -18,7 +18,7 @@ interface ZeroflowContextValue {
 }
 
 const DEFAULT_CONFIG: Required<ZeroflowConfig> = {
-  defaultFont: '16px Inter, system-ui, sans-serif',
+  defaultFont: '16px Inter',
   defaultWidth: 600,
   bufferSize: 8,
   targetFps: 60,
