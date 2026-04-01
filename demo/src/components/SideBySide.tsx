@@ -190,7 +190,8 @@ export function SideBySide() {
               {zeroflowStream ? (
                 <StreamMessage
                   stream={zeroflowStream}
-                  font="15px Inter, system-ui, sans-serif"
+                  font="15px Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif"
+                  lineHeight={24}
                   markdown={true}
                 />
               ) : (

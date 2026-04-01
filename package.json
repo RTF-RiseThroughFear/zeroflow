@@ -13,7 +13,9 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -29,7 +31,7 @@
     "react-dom": ">=18.0.0"
   },
   "dependencies": {
-    "@chenglou/pretext": "latest"
+    "@chenglou/pretext": "^0.0.4"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
@@ -40,9 +42,24 @@
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"
   },
-  "keywords": ["react","streaming","ai","chat","reflow","pretext","performance","llm","markdown","zero-reflow","120fps"],
+  "keywords": [
+    "react",
+    "streaming",
+    "ai",
+    "chat",
+    "reflow",
+    "pretext",
+    "performance",
+    "llm",
+    "markdown",
+    "zero-reflow",
+    "120fps"
+  ],
   "author": "David Bisong <zido@disturbingcanada.com>",
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/RTF-RiseThroughFear/zeroflow.git" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RTF-RiseThroughFear/zeroflow.git"
+  },
   "homepage": "https://github.com/RTF-RiseThroughFear/zeroflow"
 }

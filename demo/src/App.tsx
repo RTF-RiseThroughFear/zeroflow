@@ -1,15 +1,22 @@
 /**
  * zeroflow demo app.
  *
- * Landing page with:
- * 1. Hero section (gradient, metrics, install command)
- * 2. Side-by-side streaming comparison (THE viral demo)
- * 3. Code examples
- * 4. Footer
+ * Landing page showcasing @chenglou/pretext capabilities:
+ * 1. Hero section: gradient, metrics, install command
+ * 2. Shrink-Wrap Showdown: CSS vs pretext bubble width comparison
+ * 3. Streaming Chat: Live bubble tightening during token streaming
+ * 4. Predictive Accordion: Height prediction for smooth animations
+ * 5. Side-by-Side Comparison: Classic benchmark (reflow counter)
+ * 6. Code Examples: Drop-in usage
+ * 7. Footer
  */
 
 import { useRef } from 'react';
 import { Hero } from './components/Hero';
+import { DragReflowDemo } from './components/DragReflowDemo';
+import { ShrinkWrapDemo } from './components/ShrinkWrapDemo';
+import { StreamingChatDemo } from './components/StreamingChatDemo';
+import { AccordionDemo } from './components/AccordionDemo';
 import { SideBySide } from './components/SideBySide';
 import { CodeExamples } from './components/CodeExamples';
 
@@ -56,19 +63,15 @@ export default function App() {
             v0.1.0
           </span>
         </div>
-        <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-          <a href="#demo" style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-secondary)' }}>Demo</a>
-          <a href="#examples" style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-secondary)' }}>Examples</a>
+        <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+          <a href="#drag-reflow" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Drag Reflow</a>
+          <a href="#shrink-wrap" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Shrink-Wrap</a>
+          <a href="#streaming-chat" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Streaming</a>
+          <a href="#accordion" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Accordion</a>
+          <a href="#demo" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Benchmark</a>
+          <a href="#examples" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Code</a>
           <a
             href="https://github.com/RTF-RiseThroughFear/zeroflow"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-secondary)' }}
-          >
-            GitHub
-          </a>
-          <a
-            href="https://www.npmjs.com/package/zeroflow"
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -82,7 +85,7 @@ export default function App() {
               fontFamily: 'var(--font-mono)',
             }}
           >
-            npm ↗
+            GitHub ↗
           </a>
         </div>
       </nav>
@@ -90,10 +93,26 @@ export default function App() {
       {/* Sections */}
       <Hero onStartDemo={scrollToDemo} />
 
+      {/* Drag reflow: THE visceral demo, shown first */}
       <div ref={demoRef}>
-        <SideBySide />
+        <DragReflowDemo />
       </div>
 
+      <div className="section-divider" />
+      <ShrinkWrapDemo />
+
+      <div className="section-divider" />
+      <StreamingChatDemo />
+
+      <div className="section-divider" />
+      <AccordionDemo />
+
+      <div className="section-divider" />
+
+      {/* Legacy comparison benchmark */}
+      <SideBySide />
+
+      <div className="section-divider" />
       <CodeExamples />
 
       {/* Footer */}
@@ -108,7 +127,10 @@ export default function App() {
           </span>
         </div>
         <p style={{ color: 'var(--text-tertiary)', fontSize: 14, marginBottom: 16 }}>
-          Zero reflow. 120fps streaming. Drop-in React component for AI chat interfaces.
+          Zero reflow. 120fps streaming. Powered by{' '}
+          <a href="https://github.com/chenglou/pretext" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)' }}>
+            @chenglou/pretext
+          </a>
         </p>
         <div style={{ display: 'flex', gap: 24, justifyContent: 'center', fontSize: 14 }}>
           <a href="https://github.com/RTF-RiseThroughFear/zeroflow" style={{ color: 'var(--text-secondary)' }}>
@@ -117,7 +139,7 @@ export default function App() {
           <a href="https://www.npmjs.com/package/zeroflow" style={{ color: 'var(--text-secondary)' }}>
             npm
           </a>
-          <a href="https://pretext.wiki" style={{ color: 'var(--text-secondary)' }}>
+          <a href="https://github.com/chenglou/pretext" style={{ color: 'var(--text-secondary)' }}>
             pretext
           </a>
         </div>

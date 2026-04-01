@@ -20,6 +20,7 @@ import {
   walkLineRanges,
   layoutWithLines,
   clearCache,
+  setLocale,
 } from '@chenglou/pretext';
 import type {
   PreparedText,
@@ -188,3 +189,12 @@ export function createMeasurer(font: string) {
  * Useful for testing or when fonts are dynamically loaded.
  */
 export { clearCache as clearMeasurerCache };
+
+/**
+ * Set the locale for text segmentation.
+ * Delegates to pretext's setLocale() which also clears cache.
+ * Useful for i18n apps that need specific locale-aware text segmentation.
+ *
+ * @param locale - BCP 47 locale string, or undefined for default
+ */
+export { setLocale };

@@ -75,6 +75,11 @@ export interface StreamMessageProps {
   font?: string;
   /** Container width in pixels (auto-detected if not provided) */
   width?: number;
+  /** Line height in pixels. This MUST match the CSS line-height.
+   *  Flows to both pretext layout() and the rendered div's style.
+   *  Chenglou: "Make sure lineHeight is synced with your css line-height declaration."
+   *  Default: 24 */
+  lineHeight?: number;
   /** Enable markdown rendering (default: true) */
   markdown?: boolean;
   /** Enable shrink-wrap sizing (default: false).

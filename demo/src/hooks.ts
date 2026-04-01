@@ -81,13 +81,13 @@ export function useFpsCounter() {
 
 /**
  * useHeightChangeCounter: Counts how many times an element's
- * height changes. This is a per-element proxy for "layout shifts"
- * since PerformanceObserver layout-shift is page-global.
+ * height changes by more than 1px.
  *
- * For the react-markdown side, the container height changes on
- * every token because the browser recalculates layout.
- * For the zeroflow side, the height is pre-set via pretext, so
- * it changes smoothly and predictably (or not at all).
+ * This is a per-element proxy for layout instability:
+ *   - DOM side: every token triggers browser layout recalculation,
+ *     causing many rapid height changes
+ *   - zeroflow side: pretext pre-sizes the container via minHeight,
+ *     so the browser doesn't need to recalculate (fewer height jumps)
  */
 export function useHeightChangeCounter() {
   const [count, setCount] = useState(0);
@@ -112,8 +112,6 @@ export function useHeightChangeCounter() {
         if (!isTrackingRef.current) return;
         for (const entry of entries) {
           const newHeight = entry.contentRect.height;
-          // Only count if height actually changed by more than 1px
-          // (ignoring sub-pixel rounding)
           if (Math.abs(newHeight - lastHeightRef.current) > 1) {
             lastHeightRef.current = newHeight;
             setCount(prev => prev + 1);

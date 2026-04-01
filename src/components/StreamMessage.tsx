@@ -51,6 +51,7 @@ export function StreamMessage(props: StreamMessageProps) {
     className,
     font,
     width,
+    lineHeight = 24,
     markdown = true,
     shrinkWrap = false,
     onComplete,
@@ -80,6 +81,7 @@ export function StreamMessage(props: StreamMessageProps) {
     stream,
     font,
     width: containerWidth,
+    lineHeight,
     shrinkWrap,
     onComplete,
   });
@@ -105,23 +107,26 @@ export function StreamMessage(props: StreamMessageProps) {
   }, [layout, onLayout]);
 
   // Container sizing:
-  // - Plain text: pretext pre-calculated height (true zero reflow)
-  // - Markdown: auto height (markdown elements have variable sizing)
-  // - Shrink-wrap: tightWidth from pretext walkLineRanges after stream completes
-  const usePreCalculatedHeight = !markdown && layout.height > 0;
+  // DURING STREAMING: We render plain text, which matches pretext's measurement
+  // exactly. Use explicit height to prevent ANY browser layout recalculation.
+  // AFTER STREAMING: Markdown elements (code blocks, lists) may be slightly
+  // taller than plain text, so use minHeight as a floor.
+  const hasPreCalculatedHeight = layout.height > 0;
+  const isCurrentlyStreaming = layout.isStreaming;
   const containerStyle: CSSProperties = {
-    ...(usePreCalculatedHeight
+    ...(hasPreCalculatedHeight
       ? {
-          height: layout.height,
-          overflow: 'hidden',
-          transition: layout.isStreaming ? 'height 50ms ease-out' : 'none',
-          willChange: layout.isStreaming ? 'height' : 'auto',
+          // During streaming: exact height (plain text = exact pretext match)
+          // After streaming: let markdown expand beyond if needed
+          height: isCurrentlyStreaming ? layout.height : undefined,
+          minHeight: layout.height,
+          overflow: isCurrentlyStreaming ? 'hidden' : undefined,
+          transition: isCurrentlyStreaming ? 'height 50ms ease-out, min-height 50ms ease-out' : 'none',
+          willChange: isCurrentlyStreaming ? 'height, min-height' : 'auto',
         }
-      : {
-          minHeight: layout.height || undefined,
-        }),
+      : {}),
     // Shrink-wrap: tighten width after streaming completes
-    ...(shrinkWrap && layout.tightWidth && !layout.isStreaming
+    ...(shrinkWrap && layout.tightWidth && !isCurrentlyStreaming
       ? {
           width: layout.tightWidth,
           transition: 'width 200ms ease-out',
@@ -138,6 +143,20 @@ export function StreamMessage(props: StreamMessageProps) {
     );
   }
 
+  // Reset key counter so React can reconcile nodes stably across renders
+  nodeKeyCounter = 0;
+
+  // Core rendering decision:
+  // DURING STREAMING: Always render plain text (layout.text from pretext).
+  //   This is the zero-reflow key: pretext calculates the height,
+  //   we set it on the container, and render plain text. NO markdown
+  //   AST rebuild, NO DOM churn, NO forced layout recalculation.
+  //   The cursor animates smoothly because the DOM structure is stable.
+  //
+  // AFTER STREAMING: Render rich markdown. The AST is built once at the
+  //   end, not on every token. The height is already correct from pretext.
+  const shouldRenderMarkdown = markdown && markdownAst && !layout.isStreaming;
+
   // Default renderer
   return (
     <div ref={containerRef} className={className} style={containerStyle}>
@@ -145,10 +164,10 @@ export function StreamMessage(props: StreamMessageProps) {
         style={{
           whiteSpace: 'pre-wrap',
           wordBreak: 'break-word',
-          lineHeight: 1.5,
+          lineHeight: `${lineHeight}px`,
         }}
       >
-        {markdown && markdownAst ? renderAst(markdownAst) : layout.text}
+        {shouldRenderMarkdown ? renderAst(markdownAst) : layout.text}
         {layout.isStreaming && (
           <span
             className="zeroflow-cursor"
@@ -168,15 +187,27 @@ export function StreamMessage(props: StreamMessageProps) {
   );
 }
 
+
 // --------------------------------------------------
 // AST to React Elements
 // --------------------------------------------------
 
 let nodeKeyCounter = 0;
 
-/** Generate a unique key for React elements */
+/** Generate a stable key for React elements. Counter is reset per render cycle. */
 function nextKey(): string {
   return `zf-${++nodeKeyCounter}`;
+}
+
+// Inject blink keyframe so the cursor works without external CSS
+if (typeof document !== 'undefined') {
+  const styleId = 'zeroflow-cursor-keyframes';
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = '@keyframes zeroflow-blink { 50% { opacity: 0; } }';
+    document.head.appendChild(style);
+  }
 }
 
 /**

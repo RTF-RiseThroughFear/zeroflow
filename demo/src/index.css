@@ -1,6 +1,7 @@
 /* ─────────────────────────────────────────────────────
    zeroflow demo - Design System
-   Dark mode, gradients, glassmorphism, micro-animations
+   Dark mode, gradients, glassmorphism, micro-animations.
+   Built to showcase @chenglou/pretext capabilities.
    ───────────────────────────────────────────────────── */
 
 /* ── Reset ── */
@@ -43,7 +44,7 @@
   --radius-lg: 20px;
   --radius-xl: 28px;
 
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
 
   --transition-fast: 150ms ease;
@@ -147,16 +148,22 @@ a:hover {
   outline: none;
 }
 
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
 .btn-primary {
   background: var(--gradient-hero);
   color: white;
   box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
 }
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 6px 24px rgba(59, 130, 246, 0.4);
 }
-.btn-primary:active {
+.btn-primary:active:not(:disabled) {
   transform: translateY(0);
 }
 
@@ -165,7 +172,7 @@ a:hover {
   color: var(--text-primary);
   border: 1px solid var(--border-medium);
 }
-.btn-secondary:hover {
+.btn-secondary:hover:not(:disabled) {
   background: var(--bg-card-hover);
   border-color: rgba(255, 255, 255, 0.15);
 }
@@ -225,7 +232,7 @@ a:hover {
   margin-top: 4px;
 }
 
-/* ── FPS Counter ── */
+/* ── FPS/Reflow Counters ── */
 .fps-counter {
   font-family: var(--font-mono);
   font-size: 13px;
@@ -239,7 +246,6 @@ a:hover {
 .fps-warn { color: var(--accent-orange); }
 .fps-bad { color: var(--accent-red); }
 
-/* ── Reflow Counter ── */
 .reflow-counter {
   font-family: var(--font-mono);
   font-size: 13px;
@@ -250,7 +256,7 @@ a:hover {
   border: 1px solid var(--border-subtle);
 }
 
-/* ── Streaming Panel ── */
+/* ── Streaming Panel (legacy comparison) ── */
 .stream-panel {
   border-radius: var(--radius-lg);
   background: var(--bg-card);
@@ -280,16 +286,197 @@ a:hover {
   line-height: 1.7;
 }
 
-/* Scrollbar styling */
-.stream-panel-body::-webkit-scrollbar {
+/* ── Scrollbar ── */
+.stream-panel-body::-webkit-scrollbar,
+.chat-column::-webkit-scrollbar {
   width: 6px;
 }
-.stream-panel-body::-webkit-scrollbar-track {
+.stream-panel-body::-webkit-scrollbar-track,
+.chat-column::-webkit-scrollbar-track {
   background: transparent;
 }
-.stream-panel-body::-webkit-scrollbar-thumb {
+.stream-panel-body::-webkit-scrollbar-thumb,
+.chat-column::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
+}
+
+/* ═══════════════════════════════════════════
+   SHRINK-WRAP DEMO - Chat Bubbles
+   ═══════════════════════════════════════════ */
+
+.chat-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  min-height: 400px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.bubble {
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 22px;
+  position: relative;
+  transition: width 80ms ease-out;
+}
+
+.bubble-user {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+.bubble-assistant {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+.bubble-tight {
+  box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.2);
+}
+
+.bubble-text {
+  word-wrap: break-word;
+}
+
+.bubble-waste {
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+/* ═══════════════════════════════════════════
+   STREAMING CHAT - Live Bubbles
+   ═══════════════════════════════════════════ */
+
+.stream-bubble {
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 15px;
+  word-wrap: break-word;
+  transition: width 60ms ease-out;
+}
+
+.stream-bubble-user {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.stream-bubble-assistant {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  border-bottom-left-radius: 4px;
+}
+
+.stream-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 16px;
+  background: var(--accent-blue);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: zeroflow-blink 0.8s step-end infinite;
+}
+
+/* ═══════════════════════════════════════════
+   ACCORDION - Predictive Height
+   ═══════════════════════════════════════════ */
+
+.accordion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.accordion-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color var(--transition-medium);
+}
+
+.accordion-item--open {
+  border-color: rgba(59, 130, 246, 0.2);
+  box-shadow: 0 2px 16px rgba(59, 130, 246, 0.06);
+}
+
+.accordion-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition-fast);
+}
+
+.accordion-toggle:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.accordion-title {
+  flex: 1;
+}
+
+.accordion-meta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.accordion-body {
+  overflow: hidden;
+  transition: height 300ms ease;
+}
+
+.accordion-inner {
+  padding: 0 20px 16px;
+}
+
+.accordion-copy {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 24px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* ── Section Divider ── */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--border-subtle) 20%,
+    rgba(59, 130, 246, 0.2) 50%,
+    var(--border-subtle) 80%,
+    transparent 100%
+  );
+  margin: 0;
 }
 
 /* ── Animations ── */
@@ -333,4 +520,45 @@ section {
   .container {
     padding: 0 16px;
   }
+
+  /* Stack shrink-wrap columns on mobile */
+  #shrink-wrap .container > div:last-of-type {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Metric pills (DragReflowDemo) ── */
+
+.metric-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+}
+
+.metric-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.metric-value {
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  min-width: 48px;
+  text-align: right;
+}
+
+/* Drag reflow global cursor */
+body.is-dragging,
+body.is-dragging * {
+  cursor: col-resize !important;
+  user-select: none !important;
 }
