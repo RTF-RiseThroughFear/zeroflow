@@ -6,10 +6,10 @@
  * and zeroflow sides of the comparison.
  */
 
-/** Sample markdown response — rich enough to show formatting differences */
+/** Sample markdown response - rich enough to show formatting differences */
 const SAMPLE_RESPONSE = `# Understanding Zero-Reflow Rendering
 
-When building AI chat interfaces, **streaming text** is the most critical UX challenge. Every token insertion triggers a DOM reflow — the browser must recalculate layout for the *entire page*.
+When building AI chat interfaces, **streaming text** is the most critical UX challenge. Every token insertion triggers a DOM reflow - the browser must recalculate layout for the *entire page*.
 
 ## The Problem
 
@@ -36,7 +36,7 @@ import { prepare, layout } from '@chenglou/pretext';
 // One-time preparation (cached per font)
 const prepared = prepare(text, '16px Inter');
 
-// Pure math — no DOM reads (~0.05ms)
+// Pure math - no DOM reads (~0.05ms)
 const { height, lineCount } = layout(prepared, 600, 24);
 \`\`\`
 

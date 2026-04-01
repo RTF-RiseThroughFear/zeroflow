@@ -138,7 +138,7 @@ export function CodeExamples() {
   );
 }
 
-/** Basic syntax highlighting — no external dependency */
+/** Basic syntax highlighting - no external dependency */
 function highlightCode(code: string): React.ReactNode {
   // Simple keyword highlighting
   const lines = code.split('\n');

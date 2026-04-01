@@ -37,7 +37,7 @@ function findByType(node: MarkdownNode, type: string): MarkdownNode[] {
 // Block-level parsing
 // ──────────────────────────────────────────────────
 
-describe('parseMarkdown — blocks', () => {
+describe('parseMarkdown - blocks', () => {
   it('parses plain text as a paragraph', () => {
     const ast = parseMarkdown('Hello world');
     expect(ast.type).toBe('root');
@@ -207,7 +207,7 @@ describe('parseInline', () => {
 // Streaming (incremental feeding)
 // ──────────────────────────────────────────────────
 
-describe('feedText — streaming', () => {
+describe('feedText - streaming', () => {
   it('builds AST incrementally', () => {
     const state = createParserState();
 
@@ -247,7 +247,7 @@ describe('feedText — streaming', () => {
     feedText(state, '\n  pass\n```');
     const codeBlocks2 = findByType(state.ast, 'code_block');
     expect(codeBlocks2).toHaveLength(1);
-    // No longer partial — closed
+    // No longer partial - closed
     expect(codeBlocks2[0].meta?.partial).toBeUndefined();
   });
 

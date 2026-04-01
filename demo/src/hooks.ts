@@ -3,7 +3,7 @@
  * Uses requestAnimationFrame to count actual frame renders.
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 interface FpsState {
   fps: number;
@@ -80,30 +80,55 @@ export function useFpsCounter() {
 }
 
 /**
- * useReflowCounter: Counts layout shifts using PerformanceObserver.
+ * useHeightChangeCounter: Counts how many times an element's
+ * height changes. This is a per-element proxy for "layout shifts"
+ * since PerformanceObserver layout-shift is page-global.
+ *
+ * For the react-markdown side, the container height changes on
+ * every token because the browser recalculates layout.
+ * For the zeroflow side, the height is pre-set via pretext, so
+ * it changes smoothly and predictably (or not at all).
  */
-export function useReflowCounter() {
+export function useHeightChangeCounter() {
   const [count, setCount] = useState(0);
-  const observerRef = useRef<PerformanceObserver | null>(null);
+  const observerRef = useRef<ResizeObserver | null>(null);
+  const elementRef = useRef<HTMLDivElement | null>(null);
+  const lastHeightRef = useRef(0);
+  const isTrackingRef = useRef(false);
+
+  const setElement = useCallback((el: HTMLDivElement | null) => {
+    elementRef.current = el;
+  }, []);
 
   const start = useCallback(() => {
     setCount(0);
+    lastHeightRef.current = 0;
+    isTrackingRef.current = true;
+
+    if (!elementRef.current) return;
+
     try {
-      const observer = new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          if ('hadRecentInput' in entry && !(entry as PerformanceEntry & { hadRecentInput: boolean }).hadRecentInput) {
+      const observer = new ResizeObserver((entries) => {
+        if (!isTrackingRef.current) return;
+        for (const entry of entries) {
+          const newHeight = entry.contentRect.height;
+          // Only count if height actually changed by more than 1px
+          // (ignoring sub-pixel rounding)
+          if (Math.abs(newHeight - lastHeightRef.current) > 1) {
+            lastHeightRef.current = newHeight;
             setCount(prev => prev + 1);
           }
         }
       });
-      observer.observe({ type: 'layout-shift', buffered: false });
+      observer.observe(elementRef.current);
       observerRef.current = observer;
     } catch {
-      // PerformanceObserver not supported or layout-shift not available
+      // ResizeObserver not supported
     }
   }, []);
 
   const stop = useCallback(() => {
+    isTrackingRef.current = false;
     observerRef.current?.disconnect();
     observerRef.current = null;
   }, []);
@@ -115,5 +140,5 @@ export function useReflowCounter() {
 
   useEffect(() => () => { observerRef.current?.disconnect(); }, []);
 
-  return { count, start, stop, reset };
+  return { count, setElement, start, stop, reset };
 }

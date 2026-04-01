@@ -2,7 +2,7 @@
  * Incremental streaming markdown parser for zeroflow.
  *
  * Parses markdown tokens as they arrive from an LLM stream.
- * Does NOT re-parse the full document on each token — maintains
+ * Does NOT re-parse the full document on each token - maintains
  * a state machine that processes only new input incrementally.
  *
  * Supported (V1):
@@ -66,7 +66,7 @@ interface PendingMarker {
   position: number;
 }
 
-/** Full parser state — persisted across streaming chunks */
+/** Full parser state - persisted across streaming chunks */
 export interface ParserState {
   /** Complete raw text received so far */
   raw: string;
@@ -124,7 +124,7 @@ export function feedText(state: ParserState, newText: string): MarkdownNode {
 
 /**
  * Parse a complete markdown string into an AST.
- * This is the core parser — called on each flush with the full accumulated text.
+ * This is the core parser - called on each flush with the full accumulated text.
  *
  * @param text - Full markdown text
  * @returns Root AST node
@@ -419,7 +419,7 @@ function findClosingMarker(text: string, marker: string, start: number): number 
 
 /**
  * Convert a markdown AST to plain text (strips all formatting).
- * Useful for pretext measurement — we measure the plain text
+ * Useful for pretext measurement - we measure the plain text
  * and use the AST for rendering.
  *
  * @param node - AST node to convert

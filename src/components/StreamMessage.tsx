@@ -4,6 +4,12 @@
  * The simplest way to render AI streaming responses without
  * layout jank. Just pass a stream and it handles everything.
  * Supports optional markdown rendering via the incremental parser.
+ *
+ * When markdown is enabled, the component uses auto height since
+ * markdown elements (headings, code blocks, lists) have variable
+ * sizing that pretext plain-text measurement cannot predict.
+ * When markdown is disabled, it uses pretext's pre-calculated
+ * height for true zero-reflow rendering.
  */
 
 import { useRef, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
@@ -87,13 +93,21 @@ export function StreamMessage(props: StreamMessageProps) {
     onLayout?.(layout);
   }, [layout, onLayout]);
 
-  // Pre-calculated height: the key to zero reflow
-  const containerStyle: CSSProperties = {
-    height: layout.height || 'auto',
-    overflow: 'hidden',
-    transition: layout.isStreaming ? 'height 50ms ease-out' : 'none',
-    willChange: layout.isStreaming ? 'height' : 'auto',
-  };
+  // Pre-calculated height for plain text (true zero reflow).
+  // For markdown mode, we use auto height because markdown elements
+  // (headings, code blocks, lists) have variable sizing that pretext
+  // plain-text measurement cannot predict accurately.
+  const usePreCalculatedHeight = !markdown && layout.height > 0;
+  const containerStyle: CSSProperties = usePreCalculatedHeight
+    ? {
+        height: layout.height,
+        overflow: 'hidden',
+        transition: layout.isStreaming ? 'height 50ms ease-out' : 'none',
+        willChange: layout.isStreaming ? 'height' : 'auto',
+      }
+    : {
+        minHeight: layout.height || undefined,
+      };
 
   // Custom renderer
   if (children) {
@@ -190,7 +204,7 @@ function renderAst(node: MarkdownNode): ReactNode {
         <pre
           key={nextKey()}
           style={{
-            background: 'rgba(0, 0, 0, 0.05)',
+            background: 'rgba(255, 255, 255, 0.06)',
             borderRadius: '6px',
             padding: '0.75em 1em',
             margin: '0.5em 0',
@@ -249,7 +263,7 @@ function renderAst(node: MarkdownNode): ReactNode {
         <code
           key={nextKey()}
           style={{
-            background: 'rgba(0, 0, 0, 0.06)',
+            background: 'rgba(255, 255, 255, 0.08)',
             borderRadius: '3px',
             padding: '0.15em 0.35em',
             fontSize: '0.875em',

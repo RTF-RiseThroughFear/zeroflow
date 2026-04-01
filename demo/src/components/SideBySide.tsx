@@ -6,15 +6,15 @@
  *   Right: zeroflow (pretext-based, butter smooth)
  *
  * Both stream the SAME mock LLM response simultaneously
- * with live FPS counters and reflow counters.
+ * with live FPS counters and per-panel height-change counters.
  */
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { StreamMessage } from 'zeroflow';
 import { createMockStream, SAMPLE_RESPONSE } from '../mock-stream';
-import { useFpsCounter, useReflowCounter } from '../hooks';
+import { useFpsCounter, useHeightChangeCounter } from '../hooks';
 import type { StreamSource } from 'zeroflow';
 
 export function SideBySide() {
@@ -25,8 +25,8 @@ export function SideBySide() {
 
   const standardFps = useFpsCounter();
   const zeroflowFps = useFpsCounter();
-  const standardReflows = useReflowCounter();
-  const zeroflowReflows = useReflowCounter();
+  const standardReflows = useHeightChangeCounter();
+  const zeroflowReflows = useHeightChangeCounter();
 
   const startStreaming = useCallback(async () => {
     if (isStreaming) return;
@@ -109,15 +109,15 @@ export function SideBySide() {
         }}>
           {!isStreaming ? (
             <button className="btn btn-primary" onClick={startStreaming}>
-              ▶ Start Streaming
+              &#9654; Start Streaming
             </button>
           ) : (
             <button className="btn btn-secondary" onClick={stopStreaming}>
-              ■ Stop
+              &#9632; Stop
             </button>
           )}
           <button className="btn btn-secondary" onClick={resetDemo}>
-            ↺ Reset
+            &#8634; Reset
           </button>
         </div>
 
@@ -127,7 +127,7 @@ export function SideBySide() {
           gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
           gap: 20,
         }}>
-          {/* ─── Standard react-markdown (DOM) ─── */}
+          {/* Standard react-markdown (DOM) */}
           <div className="stream-panel" style={{
             borderColor: standardText ? 'rgba(239, 68, 68, 0.3)' : 'var(--border-subtle)',
           }}>
@@ -142,16 +142,16 @@ export function SideBySide() {
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <span className={`fps-counter ${getFpsClass(standardFps.fps)}`}>
-                  {standardFps.fps || '—'} FPS
+                  {standardFps.fps || '-'} FPS
                 </span>
                 <span className="reflow-counter" style={{
                   color: standardReflows.count > 0 ? 'var(--accent-red)' : 'var(--text-tertiary)',
                 }}>
-                  {standardReflows.count} shifts
+                  {standardReflows.count} reflows
                 </span>
               </div>
             </div>
-            <div className="stream-panel-body">
+            <div className="stream-panel-body" ref={standardReflows.setElement}>
               {standardText ? (
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{standardText}</ReactMarkdown>
               ) : (
@@ -162,7 +162,7 @@ export function SideBySide() {
             </div>
           </div>
 
-          {/* ─── zeroflow (pretext) ─── */}
+          {/* zeroflow (pretext) */}
           <div className="stream-panel" style={{
             borderColor: zeroflowStream ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-subtle)',
           }}>
@@ -177,16 +177,16 @@ export function SideBySide() {
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <span className={`fps-counter ${getFpsClass(zeroflowFps.fps)}`}>
-                  {zeroflowFps.fps || '—'} FPS
+                  {zeroflowFps.fps || '-'} FPS
                 </span>
                 <span className="reflow-counter" style={{
                   color: zeroflowReflows.count > 0 ? 'var(--accent-orange)' : 'var(--accent-emerald)',
                 }}>
-                  {zeroflowReflows.count} shifts
+                  {zeroflowReflows.count} reflows
                 </span>
               </div>
             </div>
-            <div className="stream-panel-body">
+            <div className="stream-panel-body" ref={zeroflowReflows.setElement}>
               {zeroflowStream ? (
                 <StreamMessage
                   stream={zeroflowStream}
@@ -213,7 +213,7 @@ export function SideBySide() {
             textAlign: 'center',
           }}>
             <p style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>
-              📊 Performance Summary
+              Performance Summary
             </p>
             <div style={{ display: 'flex', gap: 32, justifyContent: 'center', flexWrap: 'wrap' }}>
               <div>
@@ -221,14 +221,14 @@ export function SideBySide() {
                 <span style={{ color: 'var(--accent-red)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
                   {standardFps.fps} FPS
                 </span>
-                <span style={{ color: 'var(--text-tertiary)', fontSize: 14 }}> / {standardReflows.count} layout shifts</span>
+                <span style={{ color: 'var(--text-tertiary)', fontSize: 14 }}> / {standardReflows.count} reflows</span>
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: 14 }}>zeroflow: </span>
                 <span style={{ color: 'var(--accent-emerald)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
                   {zeroflowFps.fps} FPS
                 </span>
-                <span style={{ color: 'var(--text-tertiary)', fontSize: 14 }}> / {zeroflowReflows.count} layout shifts</span>
+                <span style={{ color: 'var(--text-tertiary)', fontSize: 14 }}> / {zeroflowReflows.count} reflows</span>
               </div>
             </div>
           </div>
