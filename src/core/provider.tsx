@@ -42,6 +42,7 @@ export function ZeroflowProvider({ children, config }: ZeroflowProviderProps) {
   );
 
   // Cache measurers by font string
+  // Each measurer wraps pretext prepare+layout for a specific font
   const measurerCache = useMemo(() => new Map<string, ReturnType<typeof createMeasurer>>(), []);
 
   const value = useMemo<ZeroflowContextValue>(

@@ -18,11 +18,19 @@ export interface UseStreamLayoutOptions {
   font?: string;
   /** Container width in pixels */
   width?: number;
-  /** Line height multiplier (default: 1.5) */
+  /** Line height in pixels (default: 24) */
   lineHeight?: number;
   /** Callback when streaming completes */
   onComplete?: (text: string) => void;
 }
+
+const EMPTY_LAYOUT: LayoutResult = {
+  lines: [],
+  height: 0,
+  maxWidth: 0,
+  isStreaming: false,
+  text: '',
+};
 
 /**
  * Hook that consumes a stream and produces layout results
@@ -44,19 +52,13 @@ export interface UseStreamLayoutOptions {
  * ```
  */
 export function useStreamLayout(options: UseStreamLayoutOptions): LayoutResult {
-  const { stream, font, width, lineHeight = 1.5, onComplete } = options;
+  const { stream, font, width, lineHeight = 24, onComplete } = options;
   const ctx = useZeroflowContext();
 
   const resolvedFont = font ?? ctx.config.defaultFont;
   const resolvedWidth = width ?? ctx.config.defaultWidth;
 
-  const [layout, setLayout] = useState<LayoutResult>({
-    lines: [],
-    height: 0,
-    maxWidth: 0,
-    isStreaming: false,
-    text: '',
-  });
+  const [layout, setLayout] = useState<LayoutResult>(EMPTY_LAYOUT);
 
   const measurerRef = useRef(ctx.getMeasurer(resolvedFont));
   const bufferRef = useRef<ReturnType<typeof createStreamBuffer> | null>(null);
@@ -65,24 +67,24 @@ export function useStreamLayout(options: UseStreamLayoutOptions): LayoutResult {
   const computeLayout = useCallback(
     (text: string, streaming: boolean): LayoutResult => {
       if (!text) {
-        return { lines: [], height: 0, maxWidth: 0, isStreaming: streaming, text: '' };
+        return { ...EMPTY_LAYOUT, isStreaming: streaming };
       }
 
-      const measurement = measurerRef.current.measure(text, resolvedWidth);
+      const measurement = measurerRef.current.measure(text, resolvedWidth, lineHeight);
 
       // Build line objects from measurement
       const lineTexts = text.split('\n');
-      const lineHeightPx = measurement.height / Math.max(measurement.lineCount, 1);
+      const perLineHeight = measurement.height / Math.max(measurement.lineCount, 1);
       const lines: LayoutLine[] = lineTexts.map((lineText, i) => ({
         text: lineText,
         width: resolvedWidth,
-        y: i * lineHeightPx * lineHeight,
-        height: lineHeightPx * lineHeight,
+        y: i * perLineHeight,
+        height: perLineHeight,
       }));
 
       return {
         lines,
-        height: measurement.lineCount * lineHeightPx * lineHeight,
+        height: measurement.height,
         maxWidth: measurement.width,
         isStreaming: streaming,
         text,
