@@ -13,11 +13,12 @@
 
 import { useRef } from 'react';
 import { Hero } from './components/Hero';
+import { DragonDemo } from './components/DragonDemo';
 import { DragReflowDemo } from './components/DragReflowDemo';
 import { ShrinkWrapDemo } from './components/ShrinkWrapDemo';
 import { StreamingChatDemo } from './components/StreamingChatDemo';
 import { AccordionDemo } from './components/AccordionDemo';
-import { SideBySide } from './components/SideBySide';
+import { StreamingPlayground } from './components/StreamingPlayground';
 import { CodeExamples } from './components/CodeExamples';
 
 export default function App() {
@@ -64,11 +65,12 @@ export default function App() {
           </span>
         </div>
         <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+          <a href="#dragon" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Dragon</a>
           <a href="#drag-reflow" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Drag Reflow</a>
           <a href="#shrink-wrap" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Shrink-Wrap</a>
           <a href="#streaming-chat" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Streaming</a>
           <a href="#accordion" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Accordion</a>
-          <a href="#demo" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Benchmark</a>
+          <a href="#playground" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Playground</a>
           <a href="#examples" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Code</a>
           <a
             href="https://github.com/RTF-RiseThroughFear/zeroflow"
@@ -93,10 +95,13 @@ export default function App() {
       {/* Sections */}
       <Hero onStartDemo={scrollToDemo} />
 
-      {/* Drag reflow: THE visceral demo, shown first */}
+      {/* Dragon: Chenglou-style editorial layout, the hero demo */}
       <div ref={demoRef}>
-        <DragReflowDemo />
+        <DragonDemo />
       </div>
+
+      <div className="section-divider" />
+      <DragReflowDemo />
 
       <div className="section-divider" />
       <ShrinkWrapDemo />
@@ -109,8 +114,8 @@ export default function App() {
 
       <div className="section-divider" />
 
-      {/* Legacy comparison benchmark */}
-      <SideBySide />
+      {/* Interactive streaming playground */}
+      <StreamingPlayground />
 
       <div className="section-divider" />
       <CodeExamples />

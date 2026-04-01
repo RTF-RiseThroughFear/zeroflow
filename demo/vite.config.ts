@@ -11,6 +11,6 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-markdown', 'remark-gfm'],
+    include: ['react', 'react-dom'],
   },
 });
