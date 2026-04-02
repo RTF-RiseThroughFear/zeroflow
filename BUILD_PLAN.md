@@ -45,27 +45,30 @@ LLM tokens arrive at irregular intervals (could be 1 per 10ms or 10 per 1ms). We
 
 This means: at most 60 React renders per second, each with the correct pre-calculated height from pretext. Zero reflow.
 
-## Current state (what exists)
+## Current state (updated 2026-04-02)
 
-The scaffold is complete with these files:
+**132 tests passing. All phases through Dragon demo complete.**
 
 | File | Status | What it does |
 |------|--------|--------------|
-| `src/core/measure.ts` | Done | Wraps pretext prepare/layout with font-level caching |
-| `src/core/stream-buffer.ts` | Done | RAF-based token batching |
-| `src/core/provider.tsx` | Done | React context for shared config |
-| `src/hooks/use-stream-layout.ts` | Done | Main hook: stream + pretext = layout result |
-| `src/hooks/use-pretext-measure.ts` | Done | Low-level measurement hook |
-| `src/components/StreamMessage.tsx` | Done | Drop-in streaming message component |
-| `src/types.ts` | Done | All TypeScript types |
-| `src/index.ts` | Done | Public API exports |
-| `package.json` | Done | npm config, tsup build, vitest |
-| `tsconfig.json` | Done | TypeScript strict |
-| `tsup.config.ts` | Done | ESM + CJS + DTS build |
+| `src/core/measure.ts` | ✅ Done | Wraps pretext prepare/layout with font-level caching |
+| `src/core/stream-buffer.ts` | ✅ Done | RAF-based token batching |
+| `src/core/provider.tsx` | ✅ Done | React context for shared config |
+| `src/core/markdown.ts` | ✅ Done | Incremental streaming markdown parser |
+| `src/hooks/use-stream-layout.ts` | ✅ Done | Main hook: stream + pretext = layout result |
+| `src/hooks/use-pretext-measure.ts` | ✅ Done | Low-level measurement hook |
+| `src/components/StreamMessage.tsx` | ✅ Done | Drop-in streaming message component |
+| `src/geometry.ts` | ✅ Done | Polygon geometry (ported from Chenglou's wrap-geometry.ts) |
+| `src/types.ts` | ✅ Done | All TypeScript types |
+| `src/index.ts` | ✅ Done | Public API exports |
+| `demo/` | ✅ Done | Full demo site with 8 demos (Dragon, streaming, shrink-wrap, etc.) |
+| `package.json` | ✅ Done | npm config, tsup build, vitest |
+| `tsconfig.json` | ✅ Done | TypeScript strict |
+| `tsup.config.ts` | ✅ Done | ESM + CJS + DTS build |
 
 ## Build roadmap (in order)
 
-### Phase 1: Make it work (Day 1)
+### Phase 1: Make it work (Day 1) — ✅ COMPLETE
 
 #### 1.1 Install dependencies and verify build
 ```bash
@@ -105,7 +108,7 @@ Update `StreamMessage.tsx` to:
 - Render parsed AST as React elements with appropriate styles
 - When false, render raw text (current behavior)
 
-### Phase 2: Demo site (Day 1-2)
+### Phase 2: Demo site (Day 1-2) — ✅ COMPLETE
 
 #### 2.1 Scaffold with Vite
 ```bash
@@ -148,7 +151,7 @@ Color palette suggestion:
 - Text: white/gray scale
 - Code blocks: dark with subtle border
 
-### Phase 3: Polish and ship (Day 2)
+### Phase 3: Polish and ship (Day 2) — 🔜 NEXT
 
 #### 3.1 Vercel AI SDK integration
 Create a helper that converts `useChat()` response stream to zeroflow's StreamSource type.
